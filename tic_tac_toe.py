@@ -1,59 +1,38 @@
 #!/usr/bin/env python3
-"""Terminal tic-tac-toe with AI opponent."""
-import sys, random
-
-def new_board(): return [' ']*9
-
-def show(b):
-    for i in range(3):
-        print(f" {b[i*3]} │ {b[i*3+1]} │ {b[i*3+2]} ")
-        if i < 2: print("───┼───┼───")
-
-def winner(b):
-    lines = [(0,1,2),(3,4,5),(6,7,8),(0,3,6),(1,4,7),(2,5,8),(0,4,8),(2,4,6)]
-    for a,c,d in lines:
-        if b[a] == b[c] == b[d] != ' ': return b[a]
-    return None
-
-def minimax(b, is_max):
-    w = winner(b)
-    if w == 'O': return 1
-    if w == 'X': return -1
-    if ' ' not in b: return 0
-    best = -2 if is_max else 2
+"""Tic-tac-toe with perfect minimax AI."""
+def new_board(): return [" "]*9
+def check_win(b,p):
+    wins=[(0,1,2),(3,4,5),(6,7,8),(0,3,6),(1,4,7),(2,5,8),(0,4,8),(2,4,6)]
+    return any(b[a]==b[bb]==b[c]==p for a,bb,c in wins)
+def is_full(b): return " " not in b
+def minimax(b,is_max):
+    if check_win(b,"X"): return 1
+    if check_win(b,"O"): return -1
+    if is_full(b): return 0
+    if is_max:
+        best=-2
+        for i in range(9):
+            if b[i]==" ": b[i]="X";best=max(best,minimax(b,False));b[i]=" "
+        return best
+    else:
+        best=2
+        for i in range(9):
+            if b[i]==" ": b[i]="O";best=min(best,minimax(b,True));b[i]=" "
+        return best
+def best_move(b,player="X"):
+    is_max=player=="X";best_val=-2 if is_max else 2;best_i=-1
     for i in range(9):
-        if b[i] == ' ':
-            b[i] = 'O' if is_max else 'X'
-            score = minimax(b, not is_max)
-            b[i] = ' '
-            best = max(best, score) if is_max else min(best, score)
-    return best
-
-def ai_move(b):
-    best_score, best_move = -2, 0
-    for i in range(9):
-        if b[i] == ' ':
-            b[i] = 'O'
-            score = minimax(b, False)
-            b[i] = ' '
-            if score > best_score: best_score, best_move = score, i
-    return best_move
-
-def play():
-    b = new_board()
-    print("You are X. Enter 1-9:\n")
-    show(b)
-    while True:
-        try: move = int(input("\nYour move: ")) - 1
-        except (ValueError, EOFError): continue
-        if not (0 <= move < 9) or b[move] != ' ': print("Invalid!"); continue
-        b[move] = 'X'
-        if winner(b): show(b); print("\nYou win! 🎉"); return
-        if ' ' not in b: show(b); print("\nDraw!"); return
-        b[ai_move(b)] = 'O'
-        show(b)
-        if winner(b): print("\nAI wins! 🤖"); return
-        if ' ' not in b: print("\nDraw!"); return
-
-if __name__ == '__main__':
-    play()
+        if b[i]!=" ":continue
+        b[i]=player;val=minimax(b,not is_max);b[i]=" "
+        if (is_max and val>best_val) or (not is_max and val<best_val): best_val=val;best_i=i
+    return best_i
+if __name__=="__main__":
+    b=new_board();b[4]="X"
+    m=best_move(b,"O");print(f"O plays: {m} (corner expected)")
+    assert m in [0,2,6,8]
+    b=new_board()
+    for turn in range(9):
+        p="X" if turn%2==0 else "O"
+        m=best_move(b,p);b[m]=p
+    assert not check_win(b,"X") and not check_win(b,"O")
+    print("Perfect play = draw"); print("Tic-tac-toe OK")
