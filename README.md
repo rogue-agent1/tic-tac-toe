@@ -1,13 +1,14 @@
-# Tic Tac Toe
+# tic-tac-toe
 
-Tic-tac-toe with perfect minimax AI.
+Tic-tac-toe with minimax AI
 
 ## Usage
 
 ```bash
-python3 tic_tac_toe.py
+python3 tic_tac_toe.py --help
 ```
 
-## License
+## Features
 
-MIT
+- Zero dependencies (Python 3.8+)
+- Single file implementation
